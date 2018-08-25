@@ -9,7 +9,7 @@
 import UIKit
 
 class SummaryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
-
+    
     
     @IBOutlet weak var labelTotalLM: UILabel!
     @IBOutlet weak var labelTotalRM: UILabel!
@@ -35,19 +35,14 @@ class SummaryViewController: UIViewController, UITableViewDataSource, UITableVie
         
         updateTotal()
     }
-
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 1
-    }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return AppData.getRoundCount()+1
+        return AppData.getRoundCount() + 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: "SummaryCell", for: indexPath) as! SummaryCell
-
+        
         cell.roundName.text = "Round# \(indexPath.row + 1)"
         cell.label1.text = "\(summaryLM[indexPath.row])"
         cell.label2.text = "\(summaryRM[indexPath.row])"
@@ -55,10 +50,9 @@ class SummaryViewController: UIViewController, UITableViewDataSource, UITableVie
         
         return cell
     }
-
+    
     func updateTotal() {
-        
-         for index in 0...11 {
+        for index in 0...11 {
             totalLM += summaryLM[index]
             totalRM += summaryRM[index]
         }

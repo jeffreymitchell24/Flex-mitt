@@ -14,19 +14,19 @@ import Crashlytics
 
 
 class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDelegate {
-
+    
     // Round
     let roundNumber = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15]
     let roundMinutes = [2, 3, 5]
     let roundBell = [10, 20, 30]
     let restTime = [15, 30, 60, 120, 180]
     
-    let LongPeriod:Double = 1
-    let ShortPeriod:Double = 0.25
+    let LongPeriod: Double = 1
+    let ShortPeriod: Double = 0.25
     var rubberBellTimer = Timer()
     var rubberDelay = 1.6
     
-    var fleshPeriod:Int = 0
+    var fleshPeriod = 0
     
     var timer = Timer()
     var seconds = 0
@@ -54,13 +54,13 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     let STATE_CHARACTERISTIC_UUID_RIGHT:CBUUID  = CBUUID(string: "0000FF12-0000-1000-8000-00805F9B34FB")
     //let CLIENT_CHARACTERISTIC_CONFIG:CBUUID = CBUUID(string: "00002902-0000-1000-8000-00805F9B34FB")
     
-    var manager:CBCentralManager? = nil
-    var leftPeripheral:CBPeripheral? = nil
-    var rightPeripheral:CBPeripheral? = nil
-
+    var manager: CBCentralManager?
+    var leftPeripheral: CBPeripheral?
+    var rightPeripheral: CBPeripheral?
+    
     var bluetoothAvailable = false
     let scanPeriod = 10
-    var progressHub: MBProgressHUD? = nil
+    var progressHub: MBProgressHUD?
     var scanTimer = Timer()
     var scanSeconds = 10
     
@@ -92,11 +92,10 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     @IBOutlet weak var pauseButton1: UIButton!
     @IBOutlet weak var restButton1: UIButton!
     @IBOutlet weak var settingButton1: UIButton!
-
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         if !AppData.getSettingExist() {
             AppData.setDefault()
             AppData.setCountLM(countLM: summaryLM)
@@ -119,28 +118,18 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         }
     }
     
-    
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-    
         super.viewWillTransition(to: size, with: coordinator)
-        coordinator.animate(alongsideTransition: nil, completion: {
-            _ in
-            self.rotationScreen()
-        })
+        coordinator.animate(alongsideTransition: nil) { [weak self] _ in
+            self?.rotationScreen()
+        }
     }
     
-
     func rotationScreen() {
-        if UIApplication.shared.statusBarOrientation.isPortrait {
-            LandscapeView.isHidden = true
-        } else {
-            LandscapeView.isHidden = false
-        }
-        
+        LandscapeView.isHidden = UIApplication.shared.statusBarOrientation.isPortrait
     }
-
+    
     func initView() {
-        
         rotationScreen()
         updatePunchCount()
         
@@ -152,19 +141,17 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         timeLabel1.text = timeString(time: TimeInterval(seconds))
         timeLabel1.isHidden = false
         
-        
-        if (curRound > 0) {
+        if curRound > 0 {
             roundLabel.text = "SESSION IS OVER!"
             roundLabel1.text = "SESSION IS OVER!"
         }
-        
     }
     
     func startRound() {
         started = true
         rest = false
         paused = false
-        fleshPeriod = (Int)(LongPeriod / ShortPeriod)
+        fleshPeriod = Int(LongPeriod / ShortPeriod)
         
         roundLabel.text = "ROUND: \(curRound + 1)"
         roundLabel1.text = "ROUND: \(curRound + 1)"
@@ -184,17 +171,16 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         totalLabel1.text = "Total: \(countLM + countRM)"
     }
     
-    
     @IBAction func clickedStartButton(_ sender: Any) {
         if !bluetoothAvailable {
             showAlert(msg: "BLE Not Supported")
             return
         }
         
-        startButton.setTitle("RUNNING", for: UIControlState.normal)
-        startButton1.setTitle("RUNNING", for: UIControlState.normal)
-        startButton.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-        startButton1.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+        startButton.setTitle("RUNNING", for: .normal)
+        startButton1.setTitle("RUNNING", for: .normal)
+        startButton.titleLabel?.font = .systemFont(ofSize: 15)
+        startButton1.titleLabel?.font = .systemFont(ofSize: 15)
         startButton.isEnabled = false
         startButton1.isEnabled = false
         roundLabel.isHidden = false
@@ -202,49 +188,45 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         settingButton.isHidden = true
         settingButton1.isHidden = true
         
-        
         reset()
         startRound()
     }
-
+    
     @IBAction func clickedPauseButton(_ sender: Any) {
-        
         if !started {
             return
         }
         
-        
         if paused {
-            pauseButton.setTitle("PAUSE", for: UIControlState.normal)
-            pauseButton1.setTitle("PAUSE", for: UIControlState.normal)
-            pauseButton.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-            pauseButton1.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+            pauseButton.setTitle("PAUSE", for: .normal)
+            pauseButton1.setTitle("PAUSE", for: .normal)
+            pauseButton.titleLabel?.font = .systemFont(ofSize: 15)
+            pauseButton1.titleLabel?.font = .systemFont(ofSize: 15)
             startTimer(interval: LongPeriod)
             paused = false
         } else {
-            pauseButton.setTitle("RESUME", for: UIControlState.normal)
-            pauseButton1.setTitle("RESUME", for: UIControlState.normal)
-            pauseButton.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-            pauseButton1.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+            pauseButton.setTitle("RESUME", for: .normal)
+            pauseButton1.setTitle("RESUME", for: .normal)
+            pauseButton.titleLabel?.font = .systemFont(ofSize: 15)
+            pauseButton1.titleLabel?.font = .systemFont(ofSize: 15)
             timer.invalidate()
             paused = true
         }
     }
-
+    
     @IBAction func clickedResetButton(_ sender: Any) {
-        
         reset()
         
         startButton.isEnabled = true
         startButton1.isEnabled = true
-        startButton.setTitle("START", for: UIControlState.normal)
-        startButton1.setTitle("START", for: UIControlState.normal)
-        startButton.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-        startButton1.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-        pauseButton.setTitle("PAUSE", for: UIControlState.normal)
-        pauseButton1.setTitle("PAUSE", for: UIControlState.normal)
-        pauseButton.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-        pauseButton1.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+        startButton.setTitle("START", for: .normal)
+        startButton1.setTitle("START", for: .normal)
+        startButton.titleLabel?.font = .systemFont(ofSize: 15)
+        startButton1.titleLabel?.font = .systemFont(ofSize: 15)
+        pauseButton.setTitle("PAUSE", for: .normal)
+        pauseButton1.setTitle("PAUSE", for: .normal)
+        pauseButton.titleLabel?.font = .systemFont(ofSize: 15)
+        pauseButton1.titleLabel?.font = .systemFont(ofSize: 15)
         settingButton.isHidden = false
         settingButton1.isHidden = false
         initView()
@@ -256,62 +238,51 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     }
     
     func connectLeftMitt() {
-        leftLabel.textColor = UIColorFromRGB(rgbValue: 0xFF4081)
-        leftMittLabel.textColor = UIColorFromRGB(rgbValue: 0xFF4081)
-        leftLabel1.textColor = UIColorFromRGB(rgbValue: 0xFF4081)
-        leftMittLabel1.textColor = UIColorFromRGB(rgbValue: 0xFF4081)
+        leftLabel.textColor = UIColor(rgbValue: 0xFF4081)
+        leftMittLabel.textColor = UIColor(rgbValue: 0xFF4081)
+        leftLabel1.textColor = UIColor(rgbValue: 0xFF4081)
+        leftMittLabel1.textColor = UIColor(rgbValue: 0xFF4081)
     }
     
     func connectRightMitt() {
-        rightLabel.textColor = UIColorFromRGB(rgbValue: 0x3F51B5)
-        rightMittLabel.textColor = UIColorFromRGB(rgbValue: 0x3F51B5)
-        rightLabel1.textColor = UIColorFromRGB(rgbValue: 0x3F51B5)
-        rightMittLabel1.textColor = UIColorFromRGB(rgbValue: 0x3F51B5)
+        rightLabel.textColor = UIColor(rgbValue: 0x3F51B5)
+        rightMittLabel.textColor = UIColor(rgbValue: 0x3F51B5)
+        rightLabel1.textColor = UIColor(rgbValue: 0x3F51B5)
+        rightMittLabel1.textColor = UIColor(rgbValue: 0x3F51B5)
     }
     
     func disconnectLeftMitt() {
-        leftLabel.textColor = UIColorFromRGB(rgbValue: 0x808080)
-        leftMittLabel.textColor = UIColorFromRGB(rgbValue: 0x808080)
-        leftLabel1.textColor = UIColorFromRGB(rgbValue: 0x808080)
-        leftMittLabel1.textColor = UIColorFromRGB(rgbValue: 0x808080)
+        leftLabel.textColor = UIColor(rgbValue: 0x808080)
+        leftMittLabel.textColor = UIColor(rgbValue: 0x808080)
+        leftLabel1.textColor = UIColor(rgbValue: 0x808080)
+        leftMittLabel1.textColor = UIColor(rgbValue: 0x808080)
     }
     
     func disconnectRightMitt() {
-        rightLabel.textColor = UIColorFromRGB(rgbValue: 0x808080)
-        rightMittLabel.textColor = UIColorFromRGB(rgbValue: 0x808080)
-        rightLabel1.textColor = UIColorFromRGB(rgbValue: 0x808080)
-        rightMittLabel1.textColor = UIColorFromRGB(rgbValue: 0x808080)
+        rightLabel.textColor = UIColor(rgbValue: 0x808080)
+        rightMittLabel.textColor = UIColor(rgbValue: 0x808080)
+        rightLabel1.textColor = UIColor(rgbValue: 0x808080)
+        rightMittLabel1.textColor = UIColor(rgbValue: 0x808080)
     }
     
-    
     // Bluetouth
-    
     func startBLEScan() {
-        progressHub = MBProgressHUD.showAdded(to: self.view, animated: true)
+        progressHub = MBProgressHUD.showAdded(to: view, animated: true)
         progressHub?.label.text = "Scanning devices"
         scanSeconds = scanPeriod
         startScanTimer()
     }
     
     func stopBLEScan() {
-        
-        if self.manager != nil {
-            self.manager?.stopScan()
-        }
-        
+        manager?.stopScan()
         scanTimer.invalidate()
-        if progressHub != nil {
-            progressHub?.hide(animated: true)
-        }
+        progressHub?.hide(animated: true)
     }
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        
         print("Checking bluetouth state")
         
-
-        switch (central.state)
-        {
+        switch central.state {
         case .poweredOff:
             print("CoreBluetooth BLE hardware is powered off")
             
@@ -330,7 +301,6 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             
         case .unsupported:
             print("CoreBluetooth BLE hardware is unsupported on this platform")
-            
         }
         
         if bluetoothAvailable == true {
@@ -340,17 +310,15 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             stopBLEScan()
         }
     }
-
-
-
-    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
     
+    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+        
         let serviceUUIDs = (advertisementData as NSDictionary)
             .object(forKey: CBAdvertisementDataServiceUUIDsKey)
             as? NSArray
         
-        if serviceUUIDs != nil {
-            for item in serviceUUIDs! {
+        if let serviceUUIDs = serviceUUIDs {
+            for item in serviceUUIDs {
                 if item as! CBUUID == LeftServiceUUID {
                     print("discovered the left device!")
                     leftPeripheral = peripheral
@@ -363,29 +331,25 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                     rightPeripheral?.delegate = self
                     manager?.connect(rightPeripheral!, options: nil)
                 }
-                
             }
         }
     }
     
-    
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-
         print("connected to peripheral")
         peripheral.discoverServices(nil)
     }
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        
-            if manager != nil {
-                if (peripheral == leftPeripheral) {
-                    disconnectLeftMitt()
-                    //manager?.cancelPeripheralConnection(leftPeripheral!)
-                } else if (peripheral == rightPeripheral) {
-                    disconnectRightMitt()
-                    //manager?.cancelPeripheralConnection(rightPeripheral!)
-                }
+        if manager != nil {
+            if peripheral == leftPeripheral {
+                disconnectLeftMitt()
+                //manager?.cancelPeripheralConnection(leftPeripheral!)
+            } else if peripheral == rightPeripheral {
+                disconnectRightMitt()
+                //manager?.cancelPeripheralConnection(rightPeripheral!)
             }
+        }
     }
     
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
@@ -393,7 +357,6 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        
         for service in peripheral.services! {
             let thisService = service as CBService
             print("Discovered service : \(service.uuid)")
@@ -404,18 +367,15 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 rightPeripheral?.discoverCharacteristics(nil, for: thisService)
             }
         }
-
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        
         for characteristic in service.characteristics! {
             let thisCharacteristic = characteristic as CBCharacteristic
             print("\(thisCharacteristic)")
             if thisCharacteristic.uuid == STATE_CHARACTERISTIC_UUID_LEFT {
                 leftPeripheral?.setNotifyValue(true, for: thisCharacteristic)
                 connectLeftMitt()
-                
             } else if (thisCharacteristic.uuid == STATE_CHARACTERISTIC_UUID_RIGHT) {
                 rightPeripheral?.setNotifyValue(true, for: thisCharacteristic)
                 connectRightMitt()
@@ -423,12 +383,11 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         }
     }
     
-
+    
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if error != nil {
             print("error:  (error)")
-        }
-        else {
+        } else {
             if peripheral == leftPeripheral {
                 addCountForCurRoundLeft()
             } else if (peripheral == rightPeripheral) {
@@ -449,7 +408,7 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         }
     }
     
-    func  addCountForCurRoundRight() {
+    func addCountForCurRoundRight() {
         if paused {
             return
         }
@@ -461,9 +420,12 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         }
     }
     
-    
     func startScanTimer() {
-        scanTimer = Timer.scheduledTimer(timeInterval: 1, target: self,   selector: #selector(HomeViewController.updateScanTimer), userInfo: nil, repeats: true)
+        scanTimer = Timer.scheduledTimer(timeInterval: 1,
+                                         target: self,
+                                         selector: #selector(updateScanTimer),
+                                         userInfo: nil,
+                                         repeats: true)
     }
     
     func updateScanTimer() {
@@ -473,28 +435,23 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         }
     }
     
-    
-    
     // Timer
-    
     func startTimer(interval: TimeInterval) {
-        timer = Timer.scheduledTimer(timeInterval: interval, target: self,   selector: #selector(HomeViewController.updateTimer), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
     }
     
- 
     func updateTimer() {
-        
-        if (!rest || fleshPeriod == (Int)(LongPeriod / ShortPeriod)) {
+        if !rest || fleshPeriod == Int(LongPeriod / ShortPeriod) {
             fleshPeriod = 0
             seconds -= 1
         }
         
-        if (seconds < 0) {
+        if seconds < 0 {
             
             timer.invalidate()
             let totalRounds = roundNumber[AppData.getRoundCount()]
             
-            if (rest) {
+            if rest {
                 if (curRound < totalRounds - 1) {
                     curRound += 1
                     startRound()
@@ -515,8 +472,7 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                 }
             }
         } else {
-            if (rest) {
-                
+            if rest {
                 fleshPeriod += 1
                 if (timeLabel.isHidden == true) {
                     timeLabel.isHidden = false
@@ -533,21 +489,17 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             timeLabel.text = timeString(time: TimeInterval(seconds))
             timeLabel1.text = timeString(time: TimeInterval(seconds))
         }
-
     }
     
     func timeString(time: TimeInterval) -> String {
-        
         let minutes = Int(time) / 60 % 60
         let seconds = Int(time) % 60
         return String(format: "%02i:%02i", minutes, seconds)
     }
     
     
-    
     // Round
     func reset() {
-        
         timer.invalidate()
         seconds = 0
         curRound = 0
@@ -567,20 +519,19 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     func sessionEnd() {
         startButton.isEnabled = true
         startButton1.isEnabled = true
-        startButton.setTitle("START", for: UIControlState.normal)
-        startButton1.setTitle("START", for: UIControlState.normal)
-        startButton.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-        startButton1.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-        pauseButton.setTitle("PAUSE", for: UIControlState.normal)
-        pauseButton1.setTitle("PAUSE", for: UIControlState.normal)
-        pauseButton.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-        pauseButton1.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+        startButton.setTitle("START", for: .normal)
+        startButton1.setTitle("START", for: .normal)
+        startButton.titleLabel?.font = .systemFont(ofSize: 15)
+        startButton1.titleLabel?.font = .systemFont(ofSize: 15)
+        pauseButton.setTitle("PAUSE", for: .normal)
+        pauseButton1.setTitle("PAUSE", for: .normal)
+        pauseButton.titleLabel?.font = .systemFont(ofSize: 15)
+        pauseButton1.titleLabel?.font = .systemFont(ofSize: 15)
         settingButton.isHidden = false
         settingButton1.isHidden = false
         roundLabel.text = "SESSION IS OVER!"
         roundLabel1.text = "SESSION IS OVER!"
     }
-
     
     func getCountForRoundLM(round: Int) -> Int {
         return round >= roundNumber[AppData.getRoundCount()] ? 0 : summaryLM[round]
@@ -590,11 +541,8 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         return round >= roundNumber[AppData.getRoundCount()] ? 0 : summaryRM[round]
     }
     
-    
     func getTotalCountLM() -> Int {
-        
-        var res: Int = 0;
-        
+        var res = 0
         for index in 0...11 {
             res += summaryLM[index]
         }
@@ -602,15 +550,13 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     }
     
     func getTotalCountRM() -> Int {
-        
-        var res: Int = 0
-        
+        var res = 0
         for index in 0...11 {
             res += summaryRM[index]
         }
-        return res;
+        return res
     }
-
+    
     // Bell
     func initBell() {
         let url = Bundle.main.url(forResource: "boxingbell", withExtension: "wav")!
@@ -628,12 +574,9 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         } catch let error {
             print(error.localizedDescription)
         }
-
-        
     }
     
     func playBoxBell() {
-        
         let url = Bundle.main.url(forResource: "boxingbell", withExtension: "wav")!
         
         do {
@@ -660,8 +603,6 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         boxBell.play()
     }
     
-    
-    
     func playWarnBell() {
         guard let rubberHammerBell = rubberHammerBell else { return }
         rubberHammerBell.currentTime = 0.1
@@ -671,35 +612,24 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     }
     
     func startRubberHammerBellTimer() {
-        rubberBellTimer = Timer.scheduledTimer(timeInterval: 1.6, target: self,   selector: #selector(HomeViewController.stopRubberBell), userInfo: nil, repeats: false)
+        rubberBellTimer = Timer.scheduledTimer(timeInterval: rubberDelay,
+                                               target: self,
+                                               selector: #selector(stopRubberBell),
+                                               userInfo: nil,
+                                               repeats: false)
     }
     
     func stopRubberBell() {
         guard let rubberHammerBell = rubberHammerBell else { return }
         rubberHammerBell.stop()
-        
     }
     
-
     // Utils
-    
-    func showAlert(msg: NSString) {
-        let alertController = UIAlertController(title: "Confirm", message: msg as String, preferredStyle: .alert)
-        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action) in
+    func showAlert(msg: String) {
+        let alertController = UIAlertController(title: "Confirm", message: msg, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
             alertController.dismiss(animated: true, completion: nil)
         }))
-        self.present(alertController, animated: true, completion: nil)
+        present(alertController, animated: true, completion: nil)
     }
-    
-    
-    func UIColorFromRGB(rgbValue: UInt) -> UIColor {
-        return UIColor(
-            red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
-            green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
-            blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
-            alpha: CGFloat(1.0)
-        )
-    }
-
-    
 }
