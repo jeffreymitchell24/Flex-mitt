@@ -10,7 +10,6 @@ import UIKit
 
 class SummaryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
-    
     @IBOutlet weak var labelTotalLM: UILabel!
     @IBOutlet weak var labelTotalRM: UILabel!
     @IBOutlet weak var labelTotal: UILabel!
