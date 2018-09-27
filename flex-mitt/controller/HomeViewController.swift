@@ -582,8 +582,16 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         do {
             boxBell = try AVAudioPlayer(contentsOf: url)
             guard let boxBell = boxBell else { return }
-            boxBell.prepareToPlay()
-            boxBell.play()
+            
+            do {
+                try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, with: .mixWithOthers)
+                try AVAudioSession.sharedInstance().setActive(true)
+                boxBell.prepareToPlay()
+                boxBell.play()
+            }
+            catch {
+                print(error)
+            }
         } catch let error {
             print(error.localizedDescription)
         }
@@ -591,24 +599,51 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
     
     func playOneBoxingBell() {
         guard let boxBell = boxBell else { return }
-        boxBell.currentTime = 1.55
-        boxBell.prepareToPlay()
-        boxBell.play()
+        
+        do {
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, with: .mixWithOthers)
+            print("Playback OK")
+            try AVAudioSession.sharedInstance().setActive(true)
+            print("Session is Active")
+            boxBell.currentTime = 1.55
+            boxBell.prepareToPlay()
+            boxBell.play()
+        } catch {
+            print(error)
+        }
+        
     }
     
     func playTwoBoxingBell() {
         guard let boxBell = boxBell else { return }
-        boxBell.currentTime = 1.39
-        boxBell.prepareToPlay()
-        boxBell.play()
+        
+        do {
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, with: .mixWithOthers)
+            try AVAudioSession.sharedInstance().setActive(true)
+            boxBell.currentTime = 1.39
+            boxBell.prepareToPlay()
+            boxBell.play()
+        }
+        catch {
+            print(error)
+        }
     }
     
     func playWarnBell() {
         guard let rubberHammerBell = rubberHammerBell else { return }
-        rubberHammerBell.currentTime = 0.1
-        rubberHammerBell.prepareToPlay()
-        rubberHammerBell.play()
-        startRubberHammerBellTimer()
+
+        do {
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, with: .mixWithOthers)
+            try AVAudioSession.sharedInstance().setActive(true)
+            rubberHammerBell.currentTime = 0.1
+            rubberHammerBell.prepareToPlay()
+            rubberHammerBell.play()
+            startRubberHammerBellTimer()
+        }
+        catch {
+            print(error)
+        }
+
     }
     
     func startRubberHammerBellTimer() {

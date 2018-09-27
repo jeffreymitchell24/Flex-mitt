@@ -38,6 +38,7 @@
 	<string>$(PRODUCT_NAME) Bluetooth use.</string>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>audio</string>
 		<string>bluetooth-central</string>
 		<string>location</string>
 	</array>
