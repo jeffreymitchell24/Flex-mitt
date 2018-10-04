@@ -428,7 +428,7 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                                          repeats: true)
     }
     
-    func updateScanTimer() {
+    @objc func updateScanTimer() {
         scanSeconds -= 1
         if scanSeconds < 0 {
             stopBLEScan()
@@ -440,7 +440,7 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
     }
     
-    func updateTimer() {
+    @objc func updateTimer() {
         if !rest || fleshPeriod == Int(LongPeriod / ShortPeriod) {
             fleshPeriod = 0
             seconds -= 1
@@ -576,74 +576,21 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
         }
     }
     
-    func playBoxBell() {
-        let url = Bundle.main.url(forResource: "boxingbell", withExtension: "wav")!
-        
-        do {
-            boxBell = try AVAudioPlayer(contentsOf: url)
-            guard let boxBell = boxBell else { return }
-            
-            do {
-                try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, with: .mixWithOthers)
-                try AVAudioSession.sharedInstance().setActive(true)
-                boxBell.prepareToPlay()
-                boxBell.play()
-            }
-            catch {
-                print(error)
-            }
-        } catch let error {
-            print(error.localizedDescription)
-        }
-    }
-    
     func playOneBoxingBell() {
-        guard let boxBell = boxBell else { return }
-        
-        do {
-            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, with: .mixWithOthers)
-            print("Playback OK")
-            try AVAudioSession.sharedInstance().setActive(true)
-            print("Session is Active")
-            boxBell.currentTime = 1.55
-            boxBell.prepareToPlay()
-            boxBell.play()
-        } catch {
-            print(error)
-        }
-        
+        boxBell?.currentTime = 1.55
+        play(boxBell)
     }
     
     func playTwoBoxingBell() {
-        guard let boxBell = boxBell else { return }
-        
-        do {
-            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, with: .mixWithOthers)
-            try AVAudioSession.sharedInstance().setActive(true)
-            boxBell.currentTime = 1.39
-            boxBell.prepareToPlay()
-            boxBell.play()
-        }
-        catch {
-            print(error)
-        }
+        boxBell?.currentTime = 1.39
+        play(boxBell)
     }
     
     func playWarnBell() {
-        guard let rubberHammerBell = rubberHammerBell else { return }
-
-        do {
-            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, with: .mixWithOthers)
-            try AVAudioSession.sharedInstance().setActive(true)
-            rubberHammerBell.currentTime = 0.1
-            rubberHammerBell.prepareToPlay()
-            rubberHammerBell.play()
-            startRubberHammerBellTimer()
+        rubberHammerBell?.currentTime = 0.1
+        play(rubberHammerBell) { [weak self] in
+            self?.startRubberHammerBellTimer()
         }
-        catch {
-            print(error)
-        }
-
     }
     
     func startRubberHammerBellTimer() {
@@ -654,9 +601,8 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
                                                repeats: false)
     }
     
-    func stopRubberBell() {
-        guard let rubberHammerBell = rubberHammerBell else { return }
-        rubberHammerBell.stop()
+    @objc func stopRubberBell() {
+        rubberHammerBell?.stop()
     }
     
     // Utils
@@ -666,5 +612,23 @@ class HomeViewController: UIViewController, CBCentralManagerDelegate, CBPeripher
             alertController.dismiss(animated: true, completion: nil)
         }))
         present(alertController, animated: true, completion: nil)
+    }
+}
+
+private extension HomeViewController {
+    func play(_ audioPlayer: AVAudioPlayer?, completion: (() -> Void)? = nil) {
+        guard let audioPlayer = audioPlayer else { return }
+        
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(AVAudioSession.Category.playback, mode: .default, options: .duckOthers)
+            try session.setActive(true)
+            audioPlayer.prepareToPlay()
+            audioPlayer.play()
+            completion?()
+        }
+        catch {
+            print(error)
+        }
     }
 }
