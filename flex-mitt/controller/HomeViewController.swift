@@ -620,9 +620,11 @@ private extension HomeViewController {
         guard let audioPlayer = audioPlayer else { return }
         
         do {
-            let session = AVAudioSession.sharedInstance()
-            try session.setCategory(AVAudioSession.Category.playback, mode: .default, options: .duckOthers)
-            try session.setActive(true)
+//            let session = AVAudioSession.sharedInstance()
+//            try session.setCategory(AVAudioSession.Category.playback, mode: .default, options: .duckOthers)
+//            try session.setActive(true)
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, with: .mixWithOthers)
+            try AVAudioSession.sharedInstance().setActive(true)
             audioPlayer.prepareToPlay()
             audioPlayer.play()
             completion?()

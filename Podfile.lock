@@ -11,12 +11,19 @@ DEPENDENCIES:
   - Fabric
   - MBProgressHUD
 
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - Crashlytics
+    - DropDown
+    - Fabric
+    - MBProgressHUD
+
 SPEC CHECKSUMS:
   Crashlytics: 79e236942ca1e7fc641df1feb9a275360a78ab6a
   DropDown: 744784d9c9aa505100e942c16acd05430cbb2f0a
   Fabric: 5911403591946b8228ab1c51d98f1d7137e863c6
   MBProgressHUD: 4890f671c94e8a0f3cf959aa731e9de2f036d71a
 
-PODFILE CHECKSUM: 9115a51485c82ab8a1c6754107a7cc57c9010f88
+PODFILE CHECKSUM: 5d6825d7aa08ac90b7fa25bbe1b4ae2b2e4c0f85
 
-COCOAPODS: 1.2.1
+COCOAPODS: 1.5.3
